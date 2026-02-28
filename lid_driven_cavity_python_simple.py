@@ -168,6 +168,12 @@ def main():
     j0, j1 = int(0.40 * (N_POINTS-1)), int(0.60 * (N_POINTS-1))
     solid[j0:j1+1, i0:i1+1] = True
 
+    # Convert grid indices → physical coordinates
+    x0 = x[i0]
+    y0 = y[j0]
+    width = x[i1] - x[i0]
+    height = y[j1] - y[j0]
+
     def apply_solid_bc(u, v):
         """No-slip inside the obstacle: u=v=0."""
         u[solid] = 0.0
@@ -382,6 +388,27 @@ def main():
     # plt.streamplot(X[::2, ::2], Y[::2, ::2], u_next[::2, ::2], v_next[::2, ::2], color="black")
     plt.xlim((0, 1))
     plt.ylim((0, 1))
+
+
+    # ------------------------------------------------------------
+    # Draw box
+    # ------------------------------------------------------------
+    ax = plt.gca()
+
+    rect = patches.Rectangle(
+        (x0, y0),
+        width,
+        height,
+        linewidth=2,
+        edgecolor='black',
+        facecolor='gray',
+        alpha=0.6,
+        zorder=10,
+    )
+
+    ax.add_patch(rect)
+    # ------------------------------------------------------------
+
     plt.show()
 
 
