@@ -1,1 +1,2 @@
-# Final project
+# Lid driven cavity with internal obstacle
+To use, just open Jupyter notebook (or anything similar), make sure you have the libraries installed, and just run the cells in order. Please note that generating the animation will take awhile because every frame should be redrawn.
