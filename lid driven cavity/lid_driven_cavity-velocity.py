@@ -91,7 +91,7 @@ def main():
     os.makedirs("frames", exist_ok=True)
 
     # save initial frame at t=0
-    save_frame(X, Y, p_prev, u_prev, v_prev, x0, y0, width, height, 0, 0.0)
+    save_frame(X, Y, p_prev, u_prev, v_prev, solid, x0, y0, width, height, 0, 0.0)
 
     for iteration in tqdm(range(1, N_ITERATIONS + 1)):
         d_u_prev__d_x = central_difference_x(u_prev)
@@ -176,30 +176,38 @@ def main():
         # save frame
         if iteration % SAVE_EVERY == 0 or iteration == N_ITERATIONS:
             current_time = iteration * TIME_STEP_LENGTH
-            save_frame(X, Y, p_next, u_next, v_next, x0, y0, width, height, iteration, current_time)
+            save_frame(X, Y, p_next, u_next, v_next, solid, x0, y0, width, height, iteration, current_time)
 
         u_prev = u_next
         v_prev = v_next
         p_prev = p_next
 
 
-def save_frame(X, Y, p, u, v, x0, y0, width, height, iteration, current_time):
+def save_frame(X, Y, p, u, v, solid, x0, y0, width, height, iteration, current_time):
     plt.style.use("dark_background")
     fig, ax = plt.subplots(figsize=(6, 6))
 
     speed = np.sqrt(u**2 + v**2)
 
     contour = ax.contourf(
-        X[::2, ::2],
-        Y[::2, ::2],
-        speed[::2, ::2],
+        X,
+        Y,
+        speed,
         cmap="coolwarm",
         levels=np.linspace(0, HORIZONTAL_VELOCITY_TOP, 50)
     )
     fig.colorbar(contour, ax=ax)
 
-    ax.streamplot(X[::2, ::2], Y[::2, ::2], u[::2, ::2], v[::2, ::2], color="black")
+    # mask obstacle so streamlines do not go through it
+    u_plot = np.ma.array(u, mask=solid)
+    v_plot = np.ma.array(v, mask=solid)
 
+    ax.streamplot(
+        X, Y,
+        u_plot, v_plot,
+        color="black",
+        density=1.2
+    )
     rect = patches.Rectangle(
         (x0, y0),
         width,
